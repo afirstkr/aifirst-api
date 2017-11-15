@@ -536,7 +536,7 @@ user.get '/:_userID', (req, res)->
   pool.query sql, param, (err, _user)->
     if err then return res.status(500).json {data: RCODE.SERVER_ERROR}
     if _user.length < 1 then return res.status(400).json {data: RCODE.NO_RESULT}
-    if _user[0]._isResigned then return res.status(400).json {data: RCODE.INVALID_USER_INFO}
+    if JSON.parse(_user[0]['_isResigned']) then return res.status(400).json {data: RCODE.INVALID_USER_INFO}
 
     return res.json {data: _user[0]}
 
@@ -590,7 +590,7 @@ user.delete '/:_userID', (req, res)->
     if JSON.parse(_user[0]['_isResigned']) then return res.status(400).json {data: RCODE.USER_RESIGNED}
 
     sql = 'update _user set _isResigned = ?, _deletedAt = ? where _userID = ?'
-    param = [true, new Date(), req.token._userID]
+    param = [true, new Date(), req.params._userID]
     pool.query sql, param, (err, result)->
       if err then return res.status(500).json {data: RCODE.SERVER_ERROR}
 
