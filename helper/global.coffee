@@ -75,10 +75,6 @@ initGlobal = ->
     FIND_MY_ID : 'FIND_MY_ID'
     FIND_MY_PW : 'FIND_MY_PW'
 
-  global.LOGIN_TYPE =
-    WEB_LOGIN    : 'WEB_LOGIN'
-    MOBILE_LOGIN : 'MOBILE_LOGIN'
-
   global.USTATE =
     ATTEND_WORK       : 'WORK'              # 출근           (채용)
     ATTEND_OFF        : 'OFF'               # 휴무           (채용)

@@ -26,11 +26,9 @@ user.get '/helper/stateGroup', (req, res)->
     select
       _user._userID,
       _user._userName,
-      _user._email,
       _user._mobile,
       _user._birthdate,
       _user._sex,
-      _user._teamID,
       _user._class,
       _user._state,
       _user._thumbnailURL,
@@ -79,11 +77,9 @@ user.get '/helper/hiredUserList', (req, res)->
     select
       _user._userID,
       _user._userName,
-      _user._email,
       _user._mobile,
       _user._birthdate,
       _user._sex,
-      _user._teamID,
       _user._class,
       _user._state,
       _user._thumbnailURL,
@@ -214,10 +210,6 @@ user.post '/helper/resetMyPassword', (req, res)->
 
 ##################################################
 # SPECIAL API
-# post /user/signup : public
-# post /user/login  : public
-# post /user/logout : token
-# get  /user/me     : token, allowOwner
 ##################################################
 user.post '/signup', (req, res)->
   unless req.body._userID      then return res.status(400).json {data: RCODE.INVALID_PARAMS}
@@ -269,17 +261,6 @@ user.post '/login', (req, res)->
     if userInfo[0]._state == USTATE.CONFIRM_REQUIRED then return res.status(400).json {data: RCODE.USER_CONFIRM_REQUIRED}
     if JSON.parse(userInfo[0]._isResigned) then return res.status(400).json {data: RCODE.USER_RESIGNED}
 
-    # validate login type
-    if req.body._loginType == LOGIN_TYPE.WEB_LOGIN
-      if      userInfo[0]._class == UCLASS.ADMIN   then undefined
-      else if userInfo[0]._class == UCLASS.MANAGER then undefined
-      else if userInfo[0]._class == UCLASS.VIP     then undefined
-      else return res.status(400).json {data: RCODE.INVALID_PERMISSION}
-    else if req.body._loginType == LOGIN_TYPE.MOBILE_LOGIN
-      undefined
-    else
-      return res.status(400).json {data: RCODE.INVALID_PERMISSION}
-
     payload =
       _userID:    userInfo[0]._userID
       _userName:  userInfo[0]._userName
@@ -302,7 +283,7 @@ user.get '/me', (req, res)->
   return res.json {data: req.token}
 
 user.put '/me', tms.verifyToken
-user.put '/me', verifyReq
+#user.put '/me', verifyReq
 user.put '/me', (req, res)->
   sql = 'select * from _user where _userID = ?'
   param = [req.token._userID]
@@ -349,16 +330,9 @@ user.put '/me', (req, res)->
 
 ##################################################
 # REST API
-# post   /user           : token, allowManager
-# get    /user           : token
-# get    /user           : token
-# get    /user           : token
-# get    /user/:username : token
-# put    /user/:username : token, allowManager
-# delete /user/:username : token, allowManager
 ##################################################
 user.post '/', tms.verifyToken
-user.post '/', acl.allowManager
+#user.post '/', acl.allowManager
 user.post '/', (req, res)->
   unless req.body._userID     then return res.status(400).json {data: RCODE.INVALID_PARAMS}
   unless req.body._password   then return res.status(400).json {data: RCODE.INVALID_PARAMS}
@@ -392,11 +366,9 @@ user.post '/', (req, res)->
         select
           _user._userID,
           _user._userName,
-          _user._email,
           _user._mobile,
           _user._birthdate,
           _user._sex,
-          _user._teamID,
           _user._class,
           _user._state,
           _user._thumbnailURL,
@@ -437,11 +409,9 @@ user.get '/', (req, res)->
       select
         _user._userID,
         _user._userName,
-        _user._email,
         _user._mobile,
         _user._birthdate,
         _user._sex,
-        _user._teamID,
         _user._class,
         _user._state,
         _user._thumbnailURL,
@@ -466,7 +436,6 @@ user.get '/', (req, res)->
           req.query._mobile or
           req.query._birthdate or
           req.query._sex or
-          req.query._teamID or
           req.query._class or
           req.query._state or
           req.query._isAllClass or
@@ -484,11 +453,9 @@ user.get '/', (req, res)->
       select
         _user._userID,
         _user._userName,
-        _user._email,
         _user._mobile,
         _user._birthdate,
         _user._sex,
-        _user._teamID,
         _user._class,
         _user._state,
         _user._thumbnailURL,
@@ -507,7 +474,6 @@ user.get '/', (req, res)->
     if req.query._mobile     and req.query._mobile != ''     then where += " and _mobile    like '%#{req.query._mobile}%'"
     if req.query._birthdate  and req.query._birthdate != ''  then where += " and _birthdate like '%#{req.query._birthdate}%'"
     if req.query._sex        and req.query._sex != ''        then where += " and _sex       =     '#{req.query._sex}'"
-    if req.query._teamID     and req.query._teamID != ''     then where += " and _teamID    =      #{req.query._teamID}"
     if req.query._class      and req.query._class != ''      then where += " and _class     =     '#{req.query._class}'"
     if req.query._state      and req.query._state != ''      then where += " and _state     =     '#{req.query._state}'"
     if req.query._createdAt and req.query._createdAt != ''   then where += " and _createdAt like  '#{req.query._createdAt}%'"
@@ -524,11 +490,9 @@ user.get '/', (req, res)->
       select
         _user._userID,
         _user._userName,
-        _user._email,
         _user._mobile,
         _user._birthdate,
         _user._sex,
-        _user._teamID,
         _user._class,
         _user._state,
         _user._thumbnailURL,
@@ -553,11 +517,9 @@ user.get '/:_userID', (req, res)->
       select
         _user._userID,
         _user._userName,
-        _user._email,
         _user._mobile,
         _user._birthdate,
         _user._sex,
-        _user._teamID,
         _user._class,
         _user._state,
         _user._thumbnailURL,
@@ -579,8 +541,8 @@ user.get '/:_userID', (req, res)->
 
 
 user.put '/:_userID', tms.verifyToken
-user.put '/:_userID', acl.allowManager
-user.put '/:_userID', verifyReq
+#user.put '/:_userID', acl.allowManager
+#user.put '/:_userID', verifyReq
 user.put '/:_userID', (req, res)->
   unless req.params._userID  then return res.status(400).json {data: RCODE.INVALID_PARAMS}
 
@@ -599,7 +561,6 @@ user.put '/:_userID', (req, res)->
     if req.body._mobile       then sets._mobile       = req.body._mobile
     if req.body._birthdate    then sets._birthdate    = req.body._birthdate
     if req.body._sex          then sets._sex          = req.body._sex
-    if req.body._teamID       then sets._teamID       = req.body._teamID
     if req.body._class        then sets._class        = req.body._class
     if req.body._state        then sets._state        = req.body._state
     if req.body._thumbnailURL then sets._thumbnailURL = req.body._thumbnailURL
@@ -616,7 +577,7 @@ user.put '/:_userID', (req, res)->
 
 
 user.delete '/:_userID', tms.verifyToken
-user.delete '/:_userID', acl.allowManager
+#user.delete '/:_userID', acl.allowManager
 user.delete '/:_userID', (req, res)->
   unless req.params._userID  then return res.status(400).json {data: RCODE.INVALID_PARAMS}
 
