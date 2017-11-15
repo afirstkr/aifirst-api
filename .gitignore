@@ -19,5 +19,4 @@ yarn.lock
 helper/local.coffee
 log
 cert
-apidoc
 
