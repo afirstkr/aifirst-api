@@ -23,6 +23,7 @@ initGlobal = ->
     IMAGE_REQUIRED          : 'IMAGE_REQUIRED'
     OLD_PASSWORD_REQUIRED   : 'OLD_PASSWORD_REQUIRED'
     SERVER_ERROR            : 'SERVER_ERROR'
+    CHANNEL_ID_EXISTS       : 'CHANNEL_ID_EXISTS'
     USERNAME_EXISTS         : 'USERNAME_EXISTS'
     LOGIN_SUCCEED           : 'LOGIN_SUCCEED'
     LOGIN_FAILED            : 'LOGIN_FAILED'
@@ -103,6 +104,11 @@ initGlobal = ->
     MANAGER   : 'MANAGER'
     LEADER    : 'LEADER'
     MEMBER    : 'MEMBER'
+  
+  global.CCLASS =
+    POST    : 'POST'
+    BOARD   : 'BOARD'
+    MENU    : 'MENU'
 
   global.ECLASS =
     EVENT_CLASS_01 : 'EVENT_CLASS_01'

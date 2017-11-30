@@ -274,8 +274,8 @@ user.get '/me', (req, res)->
 user.put '/me', tms.verifyToken
 #user.put '/me', verifyReq
 user.put '/me', (req, res)->
-  sql = 'select * from _user where _userID = ?'
-  param = [req.token._userID]
+  sql = 'select * from _human where _id = ?'
+  param = [req.token._id]
 
   pool.query sql, param, (err, _user)->
     if err then return res.status(500).json {data: RCODE.SERVER_ERROR}

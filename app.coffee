@@ -47,7 +47,8 @@ eventBot = require './bots/event'
 app.use eventBot
 
 # init router
-app.use '/user',        require './endpoint/user'
+app.use '/user',          require './endpoint/user'
+app.use '/channel',       require './endpoint/channel'
 
 # start app
 server = http.createServer(app);
