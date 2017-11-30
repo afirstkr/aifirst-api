@@ -206,65 +206,54 @@ user.post '/helper/resetMyPassword', (req, res)->
       else
         return res.status(400).json {data: RCODE.INVALID_OTP_CODE}
 
-
-
 ##################################################
 # SPECIAL API
 ##################################################
 user.post '/signup', (req, res)->
-  unless req.body._userID      then return res.status(400).json {data: RCODE.INVALID_PARAMS}
-  unless req.body._password    then return res.status(400).json {data: RCODE.INVALID_PARAMS}
-  unless req.body._userName    then return res.status(400).json {data: RCODE.INVALID_PARAMS}
-  unless req.body._mobile      then return res.status(400).json {data: RCODE.INVALID_PARAMS}
-  unless req.body._birthdate   then return res.status(400).json {data: RCODE.INVALID_PARAMS}
-  unless req.body._sex         then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+  unless req.body._id                 then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+  unless req.body._body._password     then return res.status(400).json {data: RCODE.INVALID_PARAMS}
 
-  sql = 'select * from _user where _userID = ?'
-  param = [req.body._userID]
+  sql = 'select * from _human where _id = ?'
+  param = [req.body._id]
 
   pool.query sql, param, (err, _user)->
     if err then return res.status(500).json {data: RCODE.SERVER_ERROR}
     if _user.length > 0 then return res.status(400).json {data: RCODE.USERNAME_EXISTS}
-
-    sql = 'insert into _user set ?'
-    param =
-      _userID:       req.body._userID
-      _password:     req.body._password
-      _userName:     req.body._userName
-      _mobile:       req.body._mobile
-      _birthdate:    req.body._birthdate
-      _sex:          req.body._sex
-      _class:        UCLASS.MEMBER
-      _state:        USTATE.CONFIRM_REQUIRED
-
+    
+    sql = 'insert into _human set ?'
+    param = 
+      _id: req.body._id
+      _class: HCLASS.MEMBER
+      _body: JSON.stringify req.body._body
+        
+    log param
     pool.query sql, param, (err, result)->
       if err then return res.status(500).json {data: RCODE.SERVER_ERROR}
-
-      sql = 'select * from _user where _userID = ?'
-      param = [req.body._userID]
+      
+      sql = 'select * from _human where _id = ?'
+      param = [req.body._id]
       pool.query sql, param, (err, inserted)->
+        inserted[0]._body = JSON.parse(inserted[0]._body)
         return res.json {data: inserted[0]}
 
-
 user.post '/login', (req, res)->
-  unless req.body._loginType then return res.status(400).json {data: RCODE.INVALID_PARAMS}
-  unless req.body._userID   then return res.status(400).json {data: RCODE.INVALID_PARAMS}
-  unless req.body._password then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+  unless req.body._id   then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+  unless req.body._body then return res.status(400).json {data: RCODE.INVALID_PARAMS}
 
   # check user info
-  sql = 'select * from _user where _userID = ? and _password = ?'
-  param = [req.body._userID, req.body._password]
+  sql = 'select * from _human where _id = ? and _body->"$._password" = ?'
+  param = [req.body._id, req.body._body._password]
 
   pool.query sql, param, (err, userInfo)->
     if err then return res.status(500).json {data: RCODE.SERVER_ERROR}
     if userInfo.length < 1 then return res.status(400).json {data: RCODE.INVALID_LOGIN_INFO}
-    if userInfo[0]._state == USTATE.CONFIRM_REQUIRED then return res.status(400).json {data: RCODE.USER_CONFIRM_REQUIRED}
-    if JSON.parse(userInfo[0]._isResigned) then return res.status(400).json {data: RCODE.USER_RESIGNED}
-
+    
+    log userInfo[0]
+    body = JSON.parse userInfo[0]._body
     payload =
-      _userID:    userInfo[0]._userID
-      _userName:  userInfo[0]._userName
+      _id:        userInfo[0]._id
       _class:     userInfo[0]._class
+      _name:      body._name
 
     token = tms.jwt.sign payload, TOKEN.SECRET, {expiresIn: TOKEN.EXPIRE_SEC}
     unless token then return res.status(500).json {data: RCODE.SERVER_ERROR}

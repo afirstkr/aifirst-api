@@ -14,7 +14,7 @@ tms.verifyToken = (req, res, next)->
   token = token.split(' ')
   unless token then return res.status(400).json {data: RCODE.INVALID_TOKEN}
   unless token[0].toUpperCase() == TOKEN.TYPE then return res.status(400).json {data: RCODE.INVALID_TOKEN}
-
+  
   # verify token
   jwt.verify token[1], TOKEN.SECRET, (err, decoded)->
     if err
@@ -43,7 +43,7 @@ tms.addBlacklist = (token)->
   unless token then return log RCODE.INVALID_TOKEN
   now = Math.round(new Date() / 1000)
   delta = token.exp - now
-
+  
   iat = moment.unix(token.iat).format('YYYY-MM-DD a hh:mm:ss')
   exp = moment.unix(token.exp).format('YYYY-MM-DD a hh:mm:ss')
   redis.set token._raw, JSON.stringify {iat: iat, exp: exp}

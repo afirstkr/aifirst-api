@@ -81,7 +81,7 @@ initGlobal = ->
     ATTEND_EARLY_OFF  : 'EARLY_OFF'         # 조퇴           (채용)
     ATTEND_SICK_OFF   : 'SICK_OFF'          # 병가           (채용)
     ATTEND_LEAVE      : 'LEAVE'             # 퇴사           (퇴사)
-    CONFIRM_REQUIRED  : 'CONFIRM_REQUIRED'  # 본인 확인 필요 (미채용)
+    CONFIRM_REQUIRED  : 'CONFIRM_REQUIRED'  # 본인 확인 필요  (미채용)
     HIRED             : 'HIRED'             # 채용됨         (채용)
     READY             : 'READY'             # 대기           (미채용)
 
@@ -96,6 +96,16 @@ initGlobal = ->
     MANAGER   : 'MANAGER'
     LEADER    : 'LEADER'
     MEMBER    : 'MEMBER'
+
+  global.HCLASS =
+    ADMIN     : 'ADMIN'
+    VIP       : 'VIP'
+    MANAGER   : 'MANAGER'
+    LEADER    : 'LEADER'
+    MEMBER    : 'MEMBER'
+
+  global.ECLASS =
+    EVENT_CLASS_01 : 'EVENT_CLASS_01'
 
   global.COMPANY =
     DEFAULT_ID : 'DEFAULT'
@@ -117,6 +127,9 @@ initGlobal = ->
     THUMB_H   : 200
     EXT       : '.jpg'
     THUMB_EXT : '.thumb.jpg'
+
+  global.parse = (data)->
+    data = JSON.parse(data)
 
   global.log = console.log.bind(console)
 

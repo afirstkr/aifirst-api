@@ -2,7 +2,7 @@
 
 
 # init express
-https       = require 'https'
+http        = require 'http'
 fs          = require 'fs'
 helmet      = require 'helmet'
 app         = (require 'express')()
@@ -41,15 +41,26 @@ app.use bodyParser.urlencoded({extended:true})
 app.use cors()
 
 
+# init bots
+
+eventBot = require './bots/event'
+app.use eventBot
+
 # init router
 app.use '/user',        require './endpoint/user'
 
-
 # start app
-ssl =
-  key:  fs.readFileSync SSL.KEY
-  cert: fs.readFileSync SSL.CERT
+server = http.createServer(app);
+server.listen APP.PORT, ()->
+  log 'AI FIRST Web Service Startup'
 
-server = https.createServer(ssl, app);
-server.listen APP.SSL_PORT, ()->
-  log 'AI FIRST Web Service Startup with SSL'
+# socket io
+# io = require('socket.io')(server)
+# io.on 'connection', (socket)->
+#   socket.on '_event', (_event)->
+#     humanBot(_event)
+#     pointBot(_event)
+#     boardBot(_event)
+
+#   socket.on 'disconnect', ()->
+#     log 'disconnected'
