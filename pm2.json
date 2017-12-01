@@ -1,7 +1,7 @@
 {
   "apps": [{
     "name"            : "aifirst-api",
-    "script"          : "app.coffee",
+    "script"          : "app.js",
     "watch"           : false,
     "ignore_watch"    : ["node_modules", "log"],
     "exec_mode"       : "fork",
