@@ -34,13 +34,13 @@ channel.post '/', (req, res)->
       inserted[0]._body = JSON.parse(inserted[0]._body)
       return res.json {data: inserted[0]}
 
-channel.post '/list', tms.verifyToken
+# channel.get '/list', tms.verifyToken
 #user.post '/list', acl.allowManager
-channel.post '/list', (req, res)->
-  unless req.body._from       then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+channel.get '/list/:_from', (req, res)->
+  unless req.params._from       then return res.status(400).json {data: RCODE.INVALID_PARAMS}
 
   sql = 'select * from _channel where JSON_CONTAINS(_from, ?)'
-  param = [JSON.stringify req.body._from]
+  param = [JSON.stringify req.params._from]
   pool.query sql, param, (err, list)->
     return res.json {data: list}
 
