@@ -3,14 +3,49 @@ create database aifirst;
 use aifirst;
 
 create table user (
-  id            varchar(100) not null,
-  password      varchar(100) not null,
-  createdAt     datetime default current_timestamp,
-  updatedAt     datetime default current_timestamp on update current_timestamp,
+  email         varchar(100)  not null,
+  password      varchar(100)  not null,
+  name          varchar(100)  default null,
+  mobile        varchar(100)  default null,
+  phone         varchar(100)  default null,
+  point         bigint        default 0,
+  thumbUrl      varchar(100)  default null,
+  bizName       varchar(100)  default null,
+  bizRegCode    varchar(100)  default null,
+  myBbs         json          default null,
+  createdAt     datetime      default current_timestamp,
+  updatedAt     datetime      default current_timestamp on update current_timestamp,
+  removedAt     datetime      default null,
+  
+  primary key   (email),
+  key           (name),
+  key           (mobile),
+  key           (phone),
+  key           (point),
+  key           (createdAt)
+)engine=InnoDB default charset=utf8;
+
+create table bbs_info (
+  id            varchar(100)  not null,
+  name          varchar(100)  not null,
+  desc          varchar(100)  default null,
+  thumbUrl      varchar(100)  default null,
+
+  sysop1        varchar(100)  default null,
+  sysop2        varchar(100)  default null,
+  sysop3        bigint        default 0,
+  sysop4        varchar(100)  default null,
+  sysop5
+  createdAt     datetime      default current_timestamp,
+  updatedAt     datetime      default current_timestamp on update current_timestamp,
+  removedAt     datetime      default null,
   
   primary key   (id),
   key           (createdAt)
 )engine=InnoDB default charset=utf8;
+
+
+
 
 -- sequence function
 create table seq (
