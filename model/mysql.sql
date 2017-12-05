@@ -37,7 +37,7 @@ create table adminBBS (
   bbsID       varchar(1000) not null,
   bbsName     varchar(1000) not null,
   sysopList   json          not null,
-  intro       varchar(1000) default null,
+  intro       longtext,
   thumbUrl    varchar(1000) default null,
   bgUrl       varchar(1000) default null,
 
@@ -48,14 +48,13 @@ create table adminBBS (
 
   primary key (bbsID),
   key         (bbsName),
-  key         (intro),
   key         (isRemoved),
   key         (createdAt)
 )engine=InnoDB default charset=utf8;
 
 -- sequence function
 create table seq (
-  name          varchar(100) not null,
+  name          varchar(1000) not null,
   val           bigint       not null,
 
   primary key   (name)
