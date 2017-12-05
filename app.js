@@ -49,4 +49,4 @@ app.use(`/user`,    require(`./endpoint/user`))
 
 // start app
 let server = http.createServer(app)
-server.listen(APP.PORT, ()=> log(`AI FIRST Web Service Startup`))
+server.listen(APP.PORT, ()=> log(`AI FIRST Web Service Startup at ${APP.HOST}:${APP.PORT}`))

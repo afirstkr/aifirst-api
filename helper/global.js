@@ -86,7 +86,7 @@ let initGlobal = ()=> {
     ATTEND_LEAVE      : `LEAVE`,             // 퇴사           (퇴사)
     CONFIRM_REQUIRED  : `CONFIRM_REQUIRED`,  // 본인 확인 필요  (미채용)
     HIRED             : `HIRED`,             // 채용됨         (채용)
-    READY             : `READY`             // 대기           (미채용)
+    READY             : `READY`              // 대기           (미채용)
   }
 
   global.USTATE_GROUP = {
@@ -142,7 +142,7 @@ let initGlobal = ()=> {
     THUMB_EXT : `.thumb.jpg`
   }
 
-  return global.log = console.log.bind(console)
+  global.log = console.log.bind(console)
 }
 
 module.exports = initGlobal()

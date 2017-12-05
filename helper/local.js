@@ -16,10 +16,11 @@ let initLocal = ()=>{
   }
 
   global.APP = {
+    HOST      : 'localhost',
     PORT      : 8081
   }
 
-  return global.TOKEN = {
+  global.TOKEN = {
     TYPE      : `BEARER`,
     SECRET    : `aifirst`,
     EXPIRE_SEC: 1000
