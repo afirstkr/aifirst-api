@@ -8,6 +8,7 @@ create table user (
   pass        varchar(1000) not null,
   nickname    varchar(1000) not null,
   isRealName  boolean       default 0,
+  isConfirmed boolean       default 0,
   mobile      varchar(1000) default null,
   phone       varchar(1000) default null,
   actScore    bigint        default 0,
@@ -21,9 +22,10 @@ create table user (
   createdAt   datetime      default current_timestamp,
   updatedAt   datetime      default current_timestamp on update current_timestamp,
   removedAt   datetime      default null,
-  
+
   primary key (email),
   key         (nickname),
+  key         (isConfirmed),
   key         (mobile),
   key         (phone),
   key         (actScore),
@@ -31,12 +33,11 @@ create table user (
   key         (createdAt)
 )engine=InnoDB default charset=utf8;
 
-create table bbsSystem (
-  id          varchar(1000) not null,
-  bbsCode     varchar(1000) not null,
+create table adminBBS (
+  bbsID       varchar(1000) not null,
   bbsName     varchar(1000) not null,
   sysopList   json          not null,
-  intro       text          default null,
+  intro       varchar(1000) default null,
   thumbUrl    varchar(1000) default null,
   bgUrl       varchar(1000) default null,
 
@@ -45,9 +46,9 @@ create table bbsSystem (
   updatedAt   datetime      default current_timestamp on update current_timestamp,
   removedAt   datetime      default null,
 
-  primary key (id),
-  key         (bbsCode),
+  primary key (bbsID),
   key         (bbsName),
+  key         (intro),
   key         (isRemoved),
   key         (createdAt)
 )engine=InnoDB default charset=utf8;
@@ -76,22 +77,44 @@ end ;;
 delimiter ;
 
 -- bbs table
-create table bbsNotice (
-  id          varchar(1000) not null,
+create table noticePost (
+  postID      bigint        not null auto_increment,
   nickname    varchar(1000) not null,
-  html        text          not null,
+  title       varchar(1000) not null,
+  html        longtext,
+  views       bigint        default 0,
+  likes       bigint        default 0,
+  tag         varchar(1000) default null,
 
   isRemoved   boolean       default 0,
   createdAt   datetime      default current_timestamp,
   updatedAt   datetime      default current_timestamp on update current_timestamp,
   removedAt   datetime      default null,
 
-  primary key (id),
-  key         (nickname),
-  key         (createdAt)
+  primary key   (postID),
+  key           (nickname),
+  key           (title),
+  fulltext key  (html),
+  key           (tag),
+  key           (createdAt)
 )engine=InnoDB default charset=utf8;
 
+create table noticeReply (
+  replyID     bigint        not null auto_increment,
+  postID      bigint        not null,
+  nickname    varchar(1000) not null,
+  html        longtext,
+  likes       bigint        default 0,
 
+  isRemoved   boolean       default 0,
+  createdAt   datetime      default current_timestamp,
+  updatedAt   datetime      default current_timestamp on update current_timestamp,
+  removedAt   datetime      default null,
+
+  primary key (replyID),
+  key         (postID),
+  key         (createdAt)
+)engine=InnoDB default charset=utf8;
 
 
 -- bulk insert
