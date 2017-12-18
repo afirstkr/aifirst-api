@@ -9,6 +9,7 @@
 *.swp
 *.tgz
 .DS_Store
+*.js.map
 .idea
 .project
 .strong-pm
@@ -20,8 +21,12 @@ helper/local.coffee
 log
 cert
 
-
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+app.js
+app.js.map
+kill.sh
+logs.sh
+start.sh
