@@ -261,7 +261,7 @@
   });
 
   auth.post('/sendOtpEmail', async function(req, res) {
-    var config, err, mailOptions, otp, transporter;
+    var config, err, message, otp, transport;
     if (!req.body.email) {
       return res.status(400).json({
         data: RCODE.INVALID_PARAMS
@@ -270,20 +270,22 @@
     try {
       otp = otpGen.makeOtp();
       config = {
-        service: 'gmail',
+        host: SMTP.HOST,
+        port: SMTP.PORT,
+        secure: true,
         auth: {
-          user: GMAIL.EMAIL,
-          pass: GMAIL.PASSWORD
+          user: SMTP.EMAIL,
+          pass: SMTP.PASSWORD
         }
       };
-      transporter = nodemailer.createTransport(config);
-      mailOptions = {
-        from: '관리자 <noreply@bizinfo.co>',
+      transport = nodemailer.createTransport(config);
+      message = {
+        from: '인증확인 <noreply@aifirst.kr>',
         to: req.body.email,
         subject: '인증코드를 확인해 주세요.',
-        text: '귀하의 인증번호는 #{otp.code} 입니다.'
+        html: `귀하의 인증코드는 <b style='color:red'>${otp.code}</b> 입니다.`
       };
-      await transport.sendMail(info);
+      await transport.sendMail(message);
       redis.set(req.body._email, JSON.stringify(otp));
       redis.expire(req.body._email, otp.ttl);
       return res.json({

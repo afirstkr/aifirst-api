@@ -3,7 +3,7 @@
   'use strict';
   var moment, otp, sprintf;
 
-  sprintf = require('sprintf-js');
+  sprintf = require('sprintf-js').sprintf;
 
   moment = require('moment');
 

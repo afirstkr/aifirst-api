@@ -168,20 +168,22 @@ auth.post '/sendOtpEmail', (req, res) ->
     otp = otpGen.makeOtp()
 
     config =
-      service:'gmail'
-      auth:
-        user:GMAIL.EMAIL
-        pass:GMAIL.PASSWORD
+        host: SMTP.HOST
+        port: SMTP.PORT
+        secure: true
+        auth:
+          user: SMTP.EMAIL
+          pass: SMTP.PASSWORD
 
-    transporter = nodemailer.createTransport config
+    transport = nodemailer.createTransport config
 
-    mailOptions =
-      from:    '관리자 <noreply@bizinfo.co>'
-      to:       req.body.email
+    message =
+      from:    '인증확인 <noreply@aifirst.kr>'
+      to:      req.body.email
       subject: '인증코드를 확인해 주세요.'
-      text:    '귀하의 인증번호는 #{otp.code} 입니다.'
+      html:    "귀하의 인증코드는 <b style='color:red'>#{otp.code}</b> 입니다."
 
-    await transport.sendMail info
+    await transport.sendMail message
     redis.set req.body._email, JSON.stringify otp
     redis.expire req.body._email, otp.ttl
     return res.json {data: RCODE.EMAIL_REQUEST_SUCCEED}

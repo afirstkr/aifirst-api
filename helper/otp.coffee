@@ -1,6 +1,6 @@
 'use strict'
 
-sprintf = require 'sprintf-js'
+sprintf = require('sprintf-js').sprintf
 moment  = require 'moment'
 otp     = {}
 
