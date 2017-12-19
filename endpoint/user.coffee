@@ -75,10 +75,22 @@ user.get '/', (req, res) ->
     return res.status(500).json {data: RCODE.SERVER_ERROR}
 
 
-#user.get '/:_userID', tms.verifyToken
-user.get '/:_userID', (req, res) ->
-  return res.json {data: RCODE.TEST_SUCCEED}
+user.get '/:email', tms.verifyToken
+user.get '/:email', (req, res) ->
+  try
+    sql = 'select * from user where isRemoved=false and email=?'
+    param = [req.params.email]
 
+    user = await pool.query sql, param
+    if user.length < 1 then return res.status(400).json {data: RCODE.NO_RESULT}
+    delete user[0].password
+    delete user[0].score
+    delete user[0].coin
+    return res.json {data: user[0]}
+
+  catch err
+    log 'err=', err
+    return res.status(500).json {data: RCODE.SERVER_ERROR}
 
 user.put '/:_userID', tms.verifyToken
 user.put '/:_userID', acl.allowManager

@@ -46,7 +46,7 @@
           });
         }
         // check blacklist token
-        value = (await redis.get(token[1], function(err, value) {}));
+        value = (await redis.get(token[1]));
         if (value) {
           return res.status(400).json({
             data: RCODE.INVALID_TOKEN
@@ -56,7 +56,7 @@
         req.token._raw = token[1];
         return next();
       });
-      void 0;
+      return void 0;
     } catch (error) {
       err = error;
       log('err=', err);
@@ -64,7 +64,6 @@
         data: RCODE.SERVER_ERROR
       });
     }
-    return void 0;
   };
 
   //#####################################################################

@@ -24,7 +24,7 @@ tms.verifyToken = (req, res, next) ->
 
 
       # check blacklist token
-      value = await redis.get token[1], (err, value) ->
+      value = await redis.get token[1]
       if value  then return res.status(400).json {data: RCODE.INVALID_TOKEN}
 
       req.token = decoded
@@ -35,8 +35,6 @@ tms.verifyToken = (req, res, next) ->
   catch err
     log 'err=', err
     return res.status(500).json {data: RCODE.SERVER_ERROR}
-
-  undefined
 
 ######################################################################
 # jwt, blacklist
