@@ -286,8 +286,8 @@
         html: `귀하의 인증코드는 <b style='color:red'>${otp.code}</b> 입니다.`
       };
       await transport.sendMail(message);
-      redis.set(req.body._email, JSON.stringify(otp));
-      redis.expire(req.body._email, otp.ttl);
+      redis.set(req.body.email, JSON.stringify(otp));
+      redis.expire(req.body.email, otp.ttl);
       return res.json({
         data: RCODE.EMAIL_REQUEST_SUCCEED
       });
