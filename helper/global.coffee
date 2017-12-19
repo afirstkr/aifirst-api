@@ -78,11 +78,9 @@ initGlobal = ->
     NO_HIRED : 'NO_HIRED'
     LEAVE    : 'LEAVE'
 
-  global.USER_CLASS =
-    ADMIN     : 'ADMIN'
-    MANAGER   : 'MANAGER'
-    LEADER    : 'LEADER'
-    MEMBER    : 'MEMBER'
+  global.UCLASS =
+    ADMIN   : 'ADMIN'
+    USER    : 'USER'
 
   global.RESIZE =
     W         : 1920

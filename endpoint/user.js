@@ -156,12 +156,11 @@
     }
   });
 
-  user.put('/:_userID', tms.verifyToken);
+  user.put('/:email', tms.verifyToken);
 
-  user.put('/:_userID', acl.allowManager);
+  user.put('/:email', acl.allowManager);
 
-  //user.put '/:_userID', verifyReq
-  user.put('/:_userID', function(req, res) {
+  user.put('/:email', function(req, res) {
     return res.json({
       data: RCODE.TEST_SUCCEED
     });

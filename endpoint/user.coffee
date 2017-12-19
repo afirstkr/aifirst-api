@@ -92,10 +92,9 @@ user.get '/:email', (req, res) ->
     log 'err=', err
     return res.status(500).json {data: RCODE.SERVER_ERROR}
 
-user.put '/:_userID', tms.verifyToken
-user.put '/:_userID', acl.allowManager
-#user.put '/:_userID', verifyReq
-user.put '/:_userID', (req, res) ->
+user.put '/:email', tms.verifyToken
+user.put '/:email', acl.allowManager
+user.put '/:email', (req, res) ->
   return res.json {data: RCODE.TEST_SUCCEED}
 #  if (!req.params._userID)  return res.status(400).json({data: RCODE.INVALID_PARAMS})
 #

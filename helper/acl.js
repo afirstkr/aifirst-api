@@ -9,18 +9,10 @@
   // middleware
   //#####################################################################
   acl.allowManager = function(req, res, next) {
-    switch (req.token._class) {
+    switch (req.token.uclass) {
       case UCLASS.ADMIN:
         return next();
-      case UCLASS.VIP:
-        return next();
-      case UCLASS.MANAGER:
-        return next();
-      case UCLASS.LEADER:
-        return res.status(400).json({
-          data: RCODE.INVALID_PERMISSION
-        });
-      case UCLASS.MEMBER:
+      case UCLASS.USER:
         return res.status(400).json({
           data: RCODE.INVALID_PERMISSION
         });

@@ -63,10 +63,10 @@ auth.post '/login', (req, res) ->
     param = JSON.stringify {manager: req.body.email}
 
     uclass = await pool.query sql, param
-    if uclass.length > 0
-      uclass = 'ADMIN'
+    if uclass[0].uclass > 0
+      uclass = UCLASS.ADMIN
     else
-      uclass = 'USER'
+      uclass = UCLASS.USER
 
     payload =
       email:    user[0].email

@@ -81,11 +81,9 @@
       NO_HIRED: 'NO_HIRED',
       LEAVE: 'LEAVE'
     };
-    global.USER_CLASS = {
+    global.UCLASS = {
       ADMIN: 'ADMIN',
-      MANAGER: 'MANAGER',
-      LEADER: 'LEADER',
-      MEMBER: 'MEMBER'
+      USER: 'USER'
     };
     global.RESIZE = {
       W: 1920,
