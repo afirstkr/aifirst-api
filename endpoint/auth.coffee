@@ -1,8 +1,10 @@
 'use strict'
 
-express   = require 'express'
-tms       = require '../helper/tms'
-auth      = express.Router()
+express    = require 'express'
+tms        = require '../helper/tms'
+nodemailer = require 'nodemailer'
+otpGen     = require '../helper/otp'
+auth       = express.Router()
 
 ######################################################################
 # SPECIAL API
@@ -158,5 +160,34 @@ auth.post '/leave', (req, res) ->
     log 'err=', err
     return res.status(500).json {data: RCODE.SERVER_ERROR}
 
+
+auth.post '/sendOtpEmail', (req, res) ->
+  unless req.body.email     then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+
+  try
+    otp = otpGen.makeOtp()
+
+    config =
+      service:'gmail'
+      auth:
+        user:GMAIL.EMAIL
+        pass:GMAIL.PASSWORD
+
+    transporter = nodemailer.createTransport config
+
+    mailOptions =
+      from:    '관리자 <noreply@bizinfo.co>'
+      to:       req.body.email
+      subject: '인증코드를 확인해 주세요.'
+      text:    '귀하의 인증번호는 #{otp.code} 입니다.'
+
+    await transport.sendMail info
+    redis.set req.body._email, JSON.stringify otp
+    redis.expire req.body._email, otp.ttl
+    return res.json {data: RCODE.EMAIL_REQUEST_SUCCEED}
+
+  catch err
+    log 'err=', err
+    return res.status(500).json {data: RCODE.SERVER_ERROR}
 
 module.exports = auth
