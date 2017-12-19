@@ -146,27 +146,25 @@ user.put '/:email', (req, res) ->
     return res.status(500).json {data: RCODE.SERVER_ERROR}
 
 
-#user.delete('/:_userID', tms.verifyToken)
-#user.delete('/:_userID', acl.allowManager)
-#user.delete('/:_userID', (req, res)=>{
-#  if (!req.params._userID) return res.status(400).json({data: RCODE.INVALID_PARAMS})
-#
-#  let sql = 'select * from _user where _userID = ?'
-#  let param = [req.params._userID]
-#  return pool.query(sql, param, (err, _user)=>{
-#    if (err) return res.status(500).json({data: RCODE.SERVER_ERROR})
-#    if (_user.length < 1) return res.status(400).json({data: RCODE.NO_RESULT})
-#    if (JSON.parse(_user[0]['_isResigned'])) return res.status(400).json({data: RCODE.USER_RESIGNED})
-#
-#    sql = 'update _user set _isResigned = ?, _deletedAt = ? where _userID = ?'
-#    param = [true, new Date(), req.params._userID]
-#    return pool.query(sql, param, (err, result)=>{
-#      if (err) return res.status(500).json({data: RCODE.SERVER_ERROR})
-#
-#      return res.json({data: RCODE.DELETE_SUCCEED})
-#    })
-#  })
-#})
+user.delete '/:email', tms.verifyToken
+user.delete '/:email', acl.allowManager
+user.delete '/:email', (req, res) ->
+  try
+    sql = 'select * from user where email=? and isRemoved=false'
+    param = [req.params.email]
+    user = await pool.query sql, param
+
+    if user.length < 1 then return res.status(400).json {data: RCODE.NO_RESULT}
+
+    sql = 'update user set isRemoved=?, removedAt=? where email=?'
+    param = [true, new Date(), req.params.email]
+    await pool.query sql, param
+
+    return res.json {data: RCODE.OPERATION_SUCCEED}
+
+  catch err
+    log 'err=', err
+    return res.status(500).json {data: RCODE.SERVER_ERROR}
 
 
 module.exports = user
