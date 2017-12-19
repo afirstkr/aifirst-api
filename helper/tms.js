@@ -53,7 +53,7 @@
           });
         }
         req.token = decoded;
-        req.token._raw = token[1];
+        req.token.raw = token[1];
         return next();
       });
       return void 0;
@@ -80,8 +80,8 @@
     delta = token.exp - now;
     iat = moment.unix(token.iat).format('YYYY-MM-DD a hh:mm:ss');
     exp = moment.unix(token.exp).format('YYYY-MM-DD a hh:mm:ss');
-    redis.set(token._raw, JSON.stringify({iat, exp}));
-    return redis.expire(token._raw, delta);
+    redis.set(token.raw, JSON.stringify({iat, exp}));
+    return redis.expire(token.raw, delta);
   };
 
   module.exports = tms;

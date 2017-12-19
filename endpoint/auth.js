@@ -56,7 +56,7 @@
       user = (await pool.query(sql, param));
       if (user.length > 0) {
         return res.status(400).json({
-          data: RCODE.EMAIL_EXISTS
+          data: RCODE.OPERATION_SUCCEED
         });
       }
       sql = 'insert into user set ?';
@@ -95,7 +95,7 @@
     }
     try {
       // check user info
-      sql = 'select * from user where email = ? and password = ? and isRemoved = false';
+      sql = 'select * from user where email=? and password=? and isRemoved=false';
       param = [req.body.email, req.body.password];
       user = (await pool.query(sql, param));
       if (user.length < 1) {
@@ -118,6 +118,11 @@
         userName: user[0].userName,
         uclass: uclass
       };
+      if (!payload) {
+        return res.status(500).json({
+          data: RCODE.SERVER_ERROR
+        });
+      }
       token = tms.jwt.sign(payload, TOKEN.SECRET, {
         expiresIn: TOKEN.EXPIRE_SEC
       });
@@ -144,7 +149,7 @@
     tms.addBlacklist(req.token);
     delete req.token;
     return res.json({
-      data: RCODE.LOGOUT_SUCCEED
+      data: RCODE.OPERATION_SUCCEED
     });
   });
 
@@ -159,7 +164,7 @@
   auth.put('/me', tms.verifyToken);
 
   auth.put('/me', async function(req, res) {
-    var err, param, payload, sets, sql, token, user;
+    var err, param, payload, sets, sql, token, uclass, user;
     try {
       sql = 'select * from user where email=? and isRemoved=false';
       param = [req.token.email];
@@ -194,7 +199,7 @@
       if (req.body.bizPhone) {
         sets.bizPhone = req.body.bizPhone;
       }
-      if (JSON.stringify(sets === '{}')) {
+      if (Object.keys(sets).length === 0) {
         return res.status(400).json({
           data: RCODE.INVALID_PARAMS
         });
@@ -205,10 +210,26 @@
       sql = 'select * from user where email=?';
       param = [req.token.email];
       user = (await pool.query(sql, param));
+      sql = 'select count(*) as uclass from channel where channelID="admin" and  JSON_CONTAINS(manager, ?)';
+      param = JSON.stringify({
+        manager: req.token.email
+      });
+      uclass = (await pool.query(sql, param));
+      if (uclass[0].uclass > 0) {
+        uclass = UCLASS.ADMIN;
+      } else {
+        uclass = UCLASS.USER;
+      }
       payload = {
         email: user[0].email,
-        userName: user[0].userName
+        userName: user[0].userName,
+        uclass: uclass
       };
+      if (!payload) {
+        return res.status(500).json({
+          data: RCODE.SERVER_ERROR
+        });
+      }
       token = tms.jwt.sign(payload, TOKEN.SECRET, {
         expiresIn: TOKEN.EXPIRE_SEC
       });
@@ -245,8 +266,13 @@
         data: RCODE.INVALID_PARAMS
       });
     }
+    if (req.body.email !== req.token.email) {
+      return res.status(400).json({
+        data: RCODE.INVALID_USER_INFO
+      });
+    }
     try {
-      sql = 'select * from email=? and password=? isRemoved=false';
+      sql = 'select * from user where email=? and password=? and isRemoved=false';
       param = [req.body.email, req.body.password];
       user = (await pool.query(sql, param));
       if (user.length < 1) {
@@ -301,7 +327,7 @@
       redis.set(req.body.email, JSON.stringify(otp));
       redis.expire(req.body.email, otp.ttl);
       return res.json({
-        data: RCODE.EMAIL_REQUEST_SUCCEED
+        data: RCODE.OPERATION_SUCCEED
       });
     } catch (error) {
       err = error;

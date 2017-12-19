@@ -94,14 +94,14 @@
     try {
       switch (req.query.preset) {
         case QUERY.USER_DEFAULT:
-          sql = 'select * from user where isRemoved = false order by createdAt desc limit ?, ?';
+          sql = 'select * from user where isRemoved=false order by createdAt desc limit ?,?';
           break;
         default:
           return res.status(400).json({
             data: RCODE.INVALID_PARAMS
           });
       }
-      total = (await pool.query('select count(*) as total from user where isRemoved = false'));
+      total = (await pool.query('select count(*) as total from user where isRemoved=false'));
       total = total[0].total;
       size = parseInt(req.query.size);
       page = parseInt(req.query.page);
@@ -133,7 +133,7 @@
   user.get('/:email', async function(req, res) {
     var err, param, sql;
     try {
-      sql = 'select * from user where isRemoved=false and email=?';
+      sql = 'select * from user where email=? and isRemoved=false';
       param = [req.params.email];
       user = (await pool.query(sql, param));
       if (user.length < 1) {

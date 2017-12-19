@@ -28,7 +28,7 @@ tms.verifyToken = (req, res, next) ->
       if value  then return res.status(400).json {data: RCODE.INVALID_TOKEN}
 
       req.token = decoded
-      req.token._raw = token[1]
+      req.token.raw = token[1]
       next()
     undefined
 
@@ -48,8 +48,8 @@ tms.addBlacklist = (token) ->
 
   iat = moment.unix(token.iat).format 'YYYY-MM-DD a hh:mm:ss'
   exp = moment.unix(token.exp).format 'YYYY-MM-DD a hh:mm:ss'
-  redis.set token._raw, JSON.stringify {iat, exp}
-  return redis.expire token._raw, delta
+  redis.set token.raw, JSON.stringify {iat, exp}
+  return redis.expire token.raw, delta
 
 
 module.exports = tms

@@ -27,7 +27,7 @@ auth.post '/signup', (req, res) ->
     param = [req.body.email]
     user = await pool.query sql, param
 
-    if user.length > 0 then return res.status(400).json {data: RCODE.EMAIL_EXISTS}
+    if user.length > 0 then return res.status(400).json {data: RCODE.OPERATION_SUCCEED}
 
     sql = 'insert into user set ?'
     param =
@@ -53,7 +53,7 @@ auth.post '/login', (req, res) ->
 
   try
     # check user info
-    sql = 'select * from user where email = ? and password = ? and isRemoved = false'
+    sql = 'select * from user where email=? and password=? and isRemoved=false'
     param = [req.body.email, req.body.password]
 
     user = await pool.query sql, param
@@ -73,8 +73,11 @@ auth.post '/login', (req, res) ->
       userName: user[0].userName
       uclass:   uclass
 
+    unless payload then return res.status(500).json {data: RCODE.SERVER_ERROR}
+
     token = tms.jwt.sign payload, TOKEN.SECRET, {expiresIn: TOKEN.EXPIRE_SEC}
     unless token then return res.status(500).json {data: RCODE.SERVER_ERROR}
+
     return res.json {data: token}
 
   catch err
@@ -86,11 +89,12 @@ auth.post '/logout', tms.verifyToken
 auth.post '/logout', (req, res) ->
   tms.addBlacklist req.token
   delete req.token
-  return res.json {data: RCODE.LOGOUT_SUCCEED}
+  return res.json {data: RCODE.OPERATION_SUCCEED}
 
 
 auth.get '/me', tms.verifyToken
-auth.get '/me', (req, res) -> res.json {data: req.token}
+auth.get '/me', (req, res) ->
+  return res.json {data: req.token}
 
 auth.put '/me', tms.verifyToken
 auth.put '/me', (req, res) ->
@@ -113,25 +117,35 @@ auth.put '/me', (req, res) ->
     if req.body.bizRegCode  then sets.bizRegCode  = req.body.bizRegCode
     if req.body.bizPhone    then sets.bizPhone    = req.body.bizPhone
 
-    if JSON.stringify sets is '{}' then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+    if Object.keys(sets).length is 0 then return res.status(400).json {data: RCODE.INVALID_PARAMS}
 
     sql = 'update user set ? where email=?'
     param = [sets, req.token.email]
-
     await pool.query sql, param
 
     sql = 'select * from user where email=?'
     param = [req.token.email]
-
     user = await pool.query sql, param
+
+    sql = 'select count(*) as uclass from channel where channelID="admin" and  JSON_CONTAINS(manager, ?)'
+    param = JSON.stringify {manager: req.token.email}
+
+    uclass = await pool.query sql, param
+    if uclass[0].uclass > 0
+      uclass = UCLASS.ADMIN
+    else
+      uclass = UCLASS.USER
 
     payload =
       email:    user[0].email
       userName: user[0].userName
+      uclass:   uclass
+
+    unless payload then return res.status(500).json {data: RCODE.SERVER_ERROR}
 
     token = tms.jwt.sign payload, TOKEN.SECRET, {expiresIn: TOKEN.EXPIRE_SEC}
-
     unless token then return res.status(500).json {data: RCODE.SERVER_ERROR}
+
     tms.addBlacklist req.token
     delete req.token
     return res.json {data: token}
@@ -143,11 +157,12 @@ auth.put '/me', (req, res) ->
 
 auth.post '/leave', tms.verifyToken
 auth.post '/leave', (req, res) ->
-  unless req.body.email     then return res.status(400).json {data: RCODE.INVALID_PARAMS}
-  unless req.body.password  then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+  unless req.body.email                     then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+  unless req.body.password                  then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+  unless req.body.email is req.token.email  then return res.status(400).json {data: RCODE.INVALID_USER_INFO}
 
   try
-    sql = 'select * from email=? and password=? isRemoved=false'
+    sql = 'select * from user where email=? and password=? and isRemoved=false'
     param = [req.body.email, req.body.password]
     user = await pool.query sql, param
 
@@ -193,7 +208,7 @@ auth.post '/sendOtpEmail', (req, res) ->
     await transport.sendMail message
     redis.set req.body.email, JSON.stringify otp
     redis.expire req.body.email, otp.ttl
-    return res.json {data: RCODE.EMAIL_REQUEST_SUCCEED}
+    return res.json {data: RCODE.OPERATION_SUCCEED}
 
   catch err
     log 'err=', err
