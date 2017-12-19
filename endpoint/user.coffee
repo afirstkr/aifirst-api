@@ -67,7 +67,16 @@ user.get '/', (req, res) ->
         offset: offset
 
     param = [offset, size]
-    json.data = await pool.query sql, param
+    user = await pool.query sql, param
+
+    # for simple query string
+    for u in user
+      delete u.password
+      delete u.score
+      delete u.coin
+
+    result.data = user
+
     return res.status(200).json result
 
   catch err
@@ -83,9 +92,12 @@ user.get '/:email', (req, res) ->
 
     user = await pool.query sql, param
     if user.length < 1 then return res.status(400).json {data: RCODE.NO_RESULT}
+
+    # for simple query string
     delete user[0].password
     delete user[0].score
     delete user[0].coin
+
     return res.json {data: user[0]}
 
   catch err
@@ -95,40 +107,43 @@ user.get '/:email', (req, res) ->
 user.put '/:email', tms.verifyToken
 user.put '/:email', acl.allowManager
 user.put '/:email', (req, res) ->
-  return res.json {data: RCODE.TEST_SUCCEED}
-#  if (!req.params._userID)  return res.status(400).json({data: RCODE.INVALID_PARAMS})
-#
-#  let sql = 'select * from _user where _userID = ?'
-#  let param = [req.params._userID]
-#
-#  return pool.query(sql, param, (err, _user)=>{
-#    if (err) return res.status(500).json({data: RCODE.SERVER_ERROR})
-#    if (_user.length < 1) return res.status(400).json({data: RCODE.NO_RESULT})
-#    if (JSON.parse(_user[0]['_isResigned'])) return res.status(400).json({data: RCODE.USER_RESIGNED})
-#
-#    let sets = {}
-#
-#    if (req.body._password)     sets._password     = req.body._password
-#    if (req.body._userName)    sets._userName     = req.body._userName
-#    if (req.body._mobile)       sets._mobile       = req.body._mobile
-#    if (req.body._birthdate)    sets._birthdate    = req.body._birthdate
-#    if (req.body._sex)          sets._sex          = req.body._sex
-#    if (req.body._class)        sets._class        = req.body._class
-#    if (req.body._state)        sets._state        = req.body._state
-#    if (req.body._thumbnailURL) sets._thumbnailURL = req.body._thumbnailURL
-#
-#    if (JSON.stringify(sets) === '{}') return res.status(400).json({data: RCODE.INVALID_PARAMS})
-#
-#    sql = 'update _user set ? where _userID = ?'
-#    param = [sets, req.params._userID]
-#    return pool.query(sql, param, (err, result)=>{
-#      if (err) { return res.status(500).json({data: RCODE.SERVER_ERROR}) }
-#
-#      sets._userID = req.params._userID
-#      return res.json({data: sets})
-#    })
-#  })
-#})
+  try
+    sql = 'select * from user where email=? and isRemoved=false'
+    param = [req.params.email]
+
+    user = await pool.query sql, param
+
+    if user.length < 1 then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+
+    sets = {}
+
+    if req.body.password    then sets.password    = req.body.password
+    if req.body.userName    then sets.userName    = req.body.userName
+    if req.body.mobile      then sets.mobile      = req.body.mobile
+    if req.body.channel     then sets.channel     = req.body.channel
+    if req.body.photo       then sets.photo       = req.body.photo
+    if req.body.bizName     then sets.bizName     = req.body.bizName
+    if req.body.bizRegCode  then sets.bizRegCode  = req.body.bizRegCode
+    if req.body.bizPhone    then sets.bizPhone    = req.body.bizPhone
+
+    if Object.keys(sets).length is 0 then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+
+    sql = 'update user set ? where email=?'
+    param = [sets, req.params.email]
+    await pool.query sql, param
+
+    sql = 'select * from user where email=?'
+    param = [req.params.email]
+    user = await pool.query sql, param
+    delete user[0].password
+    delete user[0].score
+    delete user[0].coin
+
+    return res.json {data: user[0]}
+
+  catch err
+    log 'err=', err
+    return res.status(500).json {data: RCODE.SERVER_ERROR}
 
 
 #user.delete('/:_userID', tms.verifyToken)

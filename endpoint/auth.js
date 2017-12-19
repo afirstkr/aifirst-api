@@ -118,11 +118,6 @@
         userName: user[0].userName,
         uclass: uclass
       };
-      if (!payload) {
-        return res.status(500).json({
-          data: RCODE.SERVER_ERROR
-        });
-      }
       token = tms.jwt.sign(payload, TOKEN.SECRET, {
         expiresIn: TOKEN.EXPIRE_SEC
       });
@@ -225,11 +220,6 @@
         userName: user[0].userName,
         uclass: uclass
       };
-      if (!payload) {
-        return res.status(500).json({
-          data: RCODE.SERVER_ERROR
-        });
-      }
       token = tms.jwt.sign(payload, TOKEN.SECRET, {
         expiresIn: TOKEN.EXPIRE_SEC
       });

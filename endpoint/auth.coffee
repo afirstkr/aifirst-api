@@ -73,8 +73,6 @@ auth.post '/login', (req, res) ->
       userName: user[0].userName
       uclass:   uclass
 
-    unless payload then return res.status(500).json {data: RCODE.SERVER_ERROR}
-
     token = tms.jwt.sign payload, TOKEN.SECRET, {expiresIn: TOKEN.EXPIRE_SEC}
     unless token then return res.status(500).json {data: RCODE.SERVER_ERROR}
 
@@ -141,8 +139,6 @@ auth.put '/me', (req, res) ->
       userName: user[0].userName
       uclass:   uclass
 
-    unless payload then return res.status(500).json {data: RCODE.SERVER_ERROR}
-
     token = tms.jwt.sign payload, TOKEN.SECRET, {expiresIn: TOKEN.EXPIRE_SEC}
     unless token then return res.status(500).json {data: RCODE.SERVER_ERROR}
 
@@ -208,6 +204,7 @@ auth.post '/sendOtpEmail', (req, res) ->
     await transport.sendMail message
     redis.set req.body.email, JSON.stringify otp
     redis.expire req.body.email, otp.ttl
+
     return res.json {data: RCODE.OPERATION_SUCCEED}
 
   catch err
