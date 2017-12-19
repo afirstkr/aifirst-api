@@ -17,7 +17,7 @@
   // SPECIAL API
   //#####################################################################
   auth.post('/signup', async function(req, res) {
-    var err, param, sql, user;
+    var err, otp, param, sql, user, value;
     if (!req.body.email) {
       return res.status(400).json({
         data: RCODE.INVALID_PARAMS
@@ -39,6 +39,18 @@
       });
     }
     try {
+      value = (await redis.get(req.body.email));
+      if (!value) {
+        return res.status(500).json({
+          data: RCODE.OTP_EXPIRED
+        });
+      }
+      otp = JSON.parse(value);
+      if (otp.code !== req.body.otp) {
+        return res.status(400).json({
+          data: RCODE.INVALID_OTP_CODE
+        });
+      }
       sql = 'select * from user where email = ?';
       param = [req.body.email];
       user = (await pool.query(sql, param));
