@@ -1,0 +1,4 @@
+2017-12-18 15:25:11: ================================================================================
+2017-12-18 15:25:11: init database at aifirst.cbt97yfhqua0.ap-northeast-2.rds.amazonaws.com:3306
+2017-12-18 15:25:11: init token cache at redis.aifirst.kr:6379
+2017-12-18 15:25:11: AI FIRST Web Service Startup at localhost:8081
