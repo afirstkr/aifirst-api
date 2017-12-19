@@ -13,44 +13,40 @@
   // middleware
   //#####################################################################
   tms.verifyToken = function(req, res, next) {
-    var token;
+    var err, token;
     token = req.headers.authorization;
     if (!token) {
       return res.status(400).json({
         data: RCODE.INVALID_TOKEN
       });
     }
-    token = token.split(' ');
-    if (!token) {
-      return res.status(400).json({
-        data: RCODE.INVALID_TOKEN
-      });
-    }
-    if (token[0].toUpperCase() !== TOKEN.TYPE) {
-      return res.status(400).json({
-        data: RCODE.INVALID_TOKEN
-      });
-    }
-    
-    // verify token
-    jwt.verify(token[1], TOKEN.SECRET, function(err, decoded) {
-      if (err) {
-        if (err.name.toUpperCase() === 'TOKENEXPIREDERROR') {
-          return res.status(400).json({
-            data: RCODE.TOKEN_EXPIRED
-          });
-        }
+    try {
+      token = token.split(' ');
+      if (!token) {
         return res.status(400).json({
           data: RCODE.INVALID_TOKEN
         });
       }
-      // check blacklist token
-      redis.get(token[1], function(err, value) {
+      if (token[0].toUpperCase() !== TOKEN.TYPE) {
+        return res.status(400).json({
+          data: RCODE.INVALID_TOKEN
+        });
+      }
+      // verify token
+      jwt.verify(token[1], TOKEN.SECRET, async function(err, decoded) {
+        var value;
         if (err) {
+          if (err.name.toUpperCase() === 'TOKENEXPIREDERROR') {
+            return res.status(400).json({
+              data: RCODE.TOKEN_EXPIRED
+            });
+          }
           return res.status(400).json({
             data: RCODE.INVALID_TOKEN
           });
         }
+        // check blacklist token
+        value = (await redis.get(token[1], function(err, value) {}));
         if (value) {
           return res.status(400).json({
             data: RCODE.INVALID_TOKEN
@@ -60,8 +56,14 @@
         req.token._raw = token[1];
         return next();
       });
-      return void 0;
-    });
+      void 0;
+    } catch (error) {
+      err = error;
+      log('err=', err);
+      return res.status(500).json({
+        data: RCODE.SERVER_ERROR
+      });
+    }
     return void 0;
   };
 
