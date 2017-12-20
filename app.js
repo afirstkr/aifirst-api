@@ -67,7 +67,7 @@
 
   app.use('/image', require('./endpoint/image'));
 
-  //app.use('/channel', require('./endpoint/channel'))
+  app.use('/post', require('./endpoint/post'));
 
   // start app
   server = http.createServer(app);

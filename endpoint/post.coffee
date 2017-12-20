@@ -4,40 +4,35 @@ express   = require 'express'
 validator = require 'validator'
 tms       = require '../helper/tms'
 acl       = require '../helper/acl'
-channel   = express.Router()
+post      = express.Router()
 
 ######################################################################
 # REST API
 ######################################################################
-#channel.post '/', tms.verifyToken
-#channel.post '/', acl.allowManager
-#channel.post '/', (req, res) ->
-#  unless req.body._id          return res.status(400).json({data: RCODE.INVALID_PARAMS}); }
-#  if (!req.body._body) {       return res.status(400).json({data: RCODE.INVALID_PARAMS}); }
-#  if (!req.body._class) {      return res.status(400).json({data: RCODE.INVALID_PARAMS}); }
-#
-#  let sql = 'insert into _channel set ?';
-#  let param = {
-#    _id: req.body._id,
-#    _class: CCLASS.POST,
-#    _from: JSON.stringify(req.body._from),
-#    _to: JSON.stringify(req.body._to),
-#    _body: JSON.stringify(req.body._body)
-#  };
-#
-#  return pool.query(sql, param, function(err, result){
-#    if (err) { return res.status(500).json({data: RCODE.SERVER_ERROR}); }
-#
-#    sql = 'select * from _channel where _id = ?';
-#    param = [req.body._id];
-#    return pool.query(sql, param, function(err, inserted){
-#      inserted[0]._from = JSON.parse(inserted[0]._from);
-#      inserted[0]._to   = JSON.parse(inserted[0]._to);
-#      inserted[0]._body = JSON.parse(inserted[0]._body);
-#      return res.json({data: inserted[0]});
-#  });
-#});
-#});
+#post.post '/', tms.verifyToken
+post.post '/', (req, res) ->
+  unless req.body.channelID then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+  unless req.body.email     then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+  unless req.body.userName  then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+  unless req.body.title     then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+  unless req.body.html      then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+
+  try
+    sql = 'insert into post set ?'
+    param =
+      channelID:  req.body.channelID
+      email:      req.body.email
+      userName:   req.body.userName
+      title:      req.body.title
+      html:       req.body.html
+
+    post = await pool.query sql, param
+
+    return res.json {data: post.insertId}
+
+  catch err
+    log 'err=',err
+    return res.status(500).json {data: RCODE.SERVER_ERROR}
 
 #// channel.get '/list', tms.verifyToken
 #//user.post '/list', acl.allowManager
@@ -259,4 +254,4 @@ channel   = express.Router()
 #});
 
 
-module.exports = channel;
+module.exports = post

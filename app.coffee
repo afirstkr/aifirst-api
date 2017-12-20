@@ -44,7 +44,7 @@ app.use cors()
 app.use '/auth',  require './endpoint/auth'
 app.use '/user',  require './endpoint/user'
 app.use '/image', require './endpoint/image'
-#app.use('/channel', require('./endpoint/channel'))
+app.use '/post',  require './endpoint/post'
 
 
 # start app

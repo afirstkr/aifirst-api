@@ -119,6 +119,7 @@ create table reply (
 insert into channel (channelID, channelName, manager) values ('admin', 'admin', '{"manager":["admin1@aifirst.kr","admin2@aifirst.kr"]}');
 insert into user (email, password, userName) values ('admin1@aifirst.kr', 'admin1', 'admin1');
 insert into user (email, password, userName) values ('admin2@aifirst.kr', 'admin2', 'admin2');
+insert into channel (channelID, channelName, manager) values ('notice', 'admin', '{"manager":["admin1@aifirst.kr","admin2@aifirst.kr"]}');
 
 -- bulk insert
 insert into user (email, password, userName) values ('user1@aifirst.kr', 'user1', 'user1');
