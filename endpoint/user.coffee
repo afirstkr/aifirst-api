@@ -6,6 +6,70 @@ acl       = require '../helper/acl'
 user      = express.Router()
 
 ######################################################################
+# SPECIAL API
+######################################################################
+user.get '/me', tms.verifyToken
+user.get '/me', (req, res) ->
+  return res.json {data: req.token}
+
+user.put '/me', tms.verifyToken
+user.put '/me', (req, res) ->
+  try
+    sql = 'select * from user where email=? and isRemoved=false'
+    param = [req.token.email]
+
+    user = await pool.query sql, param
+
+    if user.length < 1 then return res.status(400).json {data: RCODE.INVALID_TOKEN}
+
+    sets = {}
+
+    if req.body.password    then sets.password    = req.body.password
+    if req.body.userName    then sets.userName    = req.body.userName
+    if req.body.mobile      then sets.mobile      = req.body.mobile
+    if req.body.channel     then sets.channel     = req.body.channel
+    if req.body.photo       then sets.photo       = req.body.photo
+    if req.body.bizName     then sets.bizName     = req.body.bizName
+    if req.body.bizRegCode  then sets.bizRegCode  = req.body.bizRegCode
+    if req.body.bizPhone    then sets.bizPhone    = req.body.bizPhone
+
+    if Object.keys(sets).length is 0 then return res.status(400).json {data: RCODE.INVALID_PARAMS}
+
+    sql = 'update user set ? where email=?'
+    param = [sets, req.token.email]
+    await pool.query sql, param
+
+    sql = 'select * from user where email=?'
+    param = [req.token.email]
+    user = await pool.query sql, param
+
+    sql = 'select count(*) as uclass from channel where channelID="admin" and  JSON_CONTAINS(manager, ?)'
+    param = JSON.stringify {manager: req.token.email}
+
+    uclass = await pool.query sql, param
+    if uclass[0].uclass > 0
+      uclass = UCLASS.ADMIN
+    else
+      uclass = UCLASS.USER
+
+    payload =
+      email:    user[0].email
+      userName: user[0].userName
+      uclass:   uclass
+
+    token = tms.jwt.sign payload, TOKEN.SECRET, {expiresIn: TOKEN.EXPIRE_SEC}
+    unless token then return res.status(500).json {data: RCODE.SERVER_ERROR}
+
+    tms.addBlacklist req.token
+    delete req.token
+    return res.json {data: token}
+
+  catch err
+    log 'err=', err
+    return res.status(500).json {data: RCODE.SERVER_ERROR}
+
+
+######################################################################
 # REST API
 ######################################################################
 user.post '/', tms.verifyToken
