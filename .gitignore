@@ -11,6 +11,7 @@
 .DS_Store
 *.js.map
 *.js
+.vscode
 .idea
 .project
 .strong-pm
