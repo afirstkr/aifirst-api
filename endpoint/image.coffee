@@ -60,31 +60,21 @@ image.post '/', (req, res)->
             fs.unlink UPLOAD_PATH + file.filename + RESIZE.THUMB_EXT , (err)-> if err then reject(err)
             fs.unlink UPLOAD_PATH + file.filename, (err)-> if err then reject(err)
             resolve()
-    .then ->
-      if APP.S3_PROXY
-        url = 'https://' + APP.URL + '/image/'
-      else
-        url = 'https://' + IAM.BUCKET + '.s3-' + IAM.REGION + '.amazonaws.com/'
 
-      for file in req.files
-        file.url      = url + file.filename + RESIZE.EXT
-        file.urlThumb = url + file.filename + RESIZE.THUMB_EXT
+  .then ->
+    if APP.S3_PROXY
+      url = APP.URL + '/image/'
+    else
+      url = 'https://' + IAM.BUCKET + '.s3-' + IAM.REGION + '.amazonaws.com/'
+
+    for file in req.files
+      file.url      = url + file.filename + RESIZE.EXT
+      file.urlThumb = url + file.filename + RESIZE.THUMB_EXT
 
       return res.json {data: req.files}
 
-  .catch (err)->
-    return res.status(500).json {data: RCODE.SERVER_ERROR}
+  .catch (err)-> return res.status(500).json {data: RCODE.SERVER_ERROR}
 
-
-###
-@api {get} /image/:id GET (개별)
-@apiName GetImage_id
-@apiDescription id 에 해당 하는 이미지 호출. 오프셋 검색, 필드 검색, 전체 검색 지원하지 않음
-@apiGroup Image
-
-@apiExample 호출 예시 (httpie)
-http GET https://ciat-api.bizinfo.co/image/5f82b5af2809ae6284c289b1ee4b3cee.jpg
-###
 image.get '/:filename', (req, res)->
   unless req.params.filename then return res.status(400).json {data: RCODE.FILENAME_REQUIRED}
 

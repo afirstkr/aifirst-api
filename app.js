@@ -65,6 +65,8 @@
 
   app.use('/user', require('./endpoint/user'));
 
+  app.use('/image', require('./endpoint/image'));
+
   //app.use('/channel', require('./endpoint/channel'))
 
   // start app

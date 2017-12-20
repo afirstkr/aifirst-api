@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 express   = require 'express'
 validator = require 'validator'
