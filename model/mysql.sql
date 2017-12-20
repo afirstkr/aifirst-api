@@ -84,7 +84,6 @@ create table post (
 
   createdAt   datetime      default current_timestamp,
   updatedAt   datetime      default current_timestamp on update current_timestamp,
-  removedAt   datetime      default null,
 
   primary key   (postID),
   key           (channelID),
