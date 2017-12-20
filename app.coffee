@@ -50,4 +50,4 @@ app.use '/post',  require './endpoint/post'
 # start app
 server = http.createServer app
 server.listen APP.PORT, ->
-  log 'AI FIRST Web Service Startup at ' + APP.HOST + ':' + APP.PORT
+  log 'AI FIRST Web Service Startup at ' + APP.URL
