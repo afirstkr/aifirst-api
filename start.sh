@@ -3,5 +3,5 @@
 pm2 delete aifirst-api
 rm ./upload/*
 pm2 start pm2.json
-pm2 logs
+pm2 logs 
 
