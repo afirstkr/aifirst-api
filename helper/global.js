@@ -7,9 +7,9 @@
     global.APP = {
       HOST: 'localhost',
       PORT: 8081,
-      URL: 'http://dev.aifirst.kr:8081',
       S3_PROXY: true
     };
+    global.APP.URL = 'http://dev.aifirst.kr:' + APP.PORT;
     global.RCODE = {
       INVALID_PERMISSION: 'INVALID_PERMISSION',
       INVALID_PARAMS: 'INVALID_PARAMS',
