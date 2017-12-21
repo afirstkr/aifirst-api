@@ -43,6 +43,9 @@ post.get '/', (req, res) ->
   try
     switch req.query.preset
       when 'NOTICE_DEFAULT' then channelID = 'notice'
+      when 'FREE_DEFAULT'   then channelID = 'free'
+      when 'MOIM_DEFAULT'   then channelID = 'moim'
+      # 불편하네..
       else return res.status(400).json {data: RCODE.INVALID_PARAMS}
 
     sql = 'select count(*) as total from post where channelID=?'
